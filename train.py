@@ -98,47 +98,11 @@ def train_one_epoch(model, data, epoch, optimizer, scaler, scheduler, args, tb_w
                 optimizer.synchronize()
                 scaler.unscale_(optimizer)
 
-                # (추가) grad norm 기록 (global)
-                if is_master(args):
-                    tb_log_total_grad(tb_writer, model, step, every=100)
-
-                # (추가) grad norm 기록 (blockwise)
-                if tb_writer is not None and is_master(args):
-                    tb_log_blockwise_total_grad(
-                        tb_writer,
-                        unwrap_model(model),
-                        step,
-                        every=100,
-                        tag="train/grad_block",
-                        enable=False,
-                        enable_text=True,
-                    )
-
-
                 if args.grad_clip_norm is not None:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm, norm_type=2.0)
                 with optimizer.skip_synchronize():
                     scaler.step(optimizer)
             else:
-                # (추가) 로깅을 위한 unscale
-                scaler.unscale_(optimizer)
-
-                # (추가) grad norm 기록 (global)
-                if is_master(args):
-                    tb_log_total_grad(tb_writer, model, step, every=100)
-                
-                # (추가) grad norm 기록 (blockwise)
-                if tb_writer is not None and is_master(args):
-                    tb_log_blockwise_total_grad(
-                        tb_writer,
-                        unwrap_model(model),
-                        step,
-                        every=100,
-                        tag="train/grad_block",
-                        enable=False,
-                        enable_text=True,
-                    )
-
                 if args.grad_clip_norm is not None:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm, norm_type=2.0)
                 scaler.step(optimizer)
@@ -217,10 +181,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
     loss_fd = AverageMeter()
     loss_gd = AverageMeter()
     loss_afd = AverageMeter()
-    # loss_new = AverageMeter()
-    # loss_new_ce_img = AverageMeter()
-    # loss_new_ce_txt = AverageMeter()
-    # loss_newnew = AverageMeter()
+    loss_new = AverageMeter()
+    loss_new_ce_img = AverageMeter()
+    loss_new_ce_txt = AverageMeter()
+    loss_newnew = AverageMeter()
     batch_time_m = AverageMeter()
     data_time_m = AverageMeter()
     end = time.time()
@@ -251,42 +215,9 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
             losses = loss(image_features, text_features, logit_scale, \
                 t_image_features, t_text_features, t_logit_scale, current_step=step)
              
-            # task_loss, ckd_loss, icl_loss, cross_kd_loss, fd_loss, gd_loss, afd_loss, new_loss, new_ce_img, new_ce_txt, newnew_loss = losses
-            # total_loss = task_loss + ckd_loss + icl_loss + cross_kd_loss + fd_loss + gd_loss + afd_loss + new_loss + new_ce_img + new_ce_txt + newnew_loss
+            task_loss, ckd_loss, icl_loss, cross_kd_loss, fd_loss, gd_loss, afd_loss, new_loss, new_ce_img, new_ce_txt, newnew_loss = losses
+            total_loss = task_loss + ckd_loss + icl_loss + cross_kd_loss + fd_loss + gd_loss + afd_loss + new_loss + new_ce_img + new_ce_txt + newnew_loss
 
-            task_loss, ckd_loss, icl_loss, cross_kd_loss, fd_loss, gd_loss, afd_loss = losses
-            total_loss = task_loss + ckd_loss + icl_loss + cross_kd_loss + fd_loss + gd_loss + afd_loss
-
-            # (추가) 기법별(loss별) 영향 분석용 dict
-            loss_dict = {
-                "task": task_loss,
-                "ckd": ckd_loss,
-                "icl": icl_loss,
-                "fd": fd_loss,
-                # "new": new_loss,
-                # "new_ce_img": new_ce_img,
-                # "new_ce_txt": new_ce_txt,
-                # "newnew": newnew_loss,
-            }
-
-        # (추가) 기법별 loss 기록
-        if is_master(args) and ((i % 100 == 0) or ((i + 1) == num_batches_per_epoch)):
-            log_losses(tb_writer, args, step, total_loss, loss_dict)
-
-        # (추가) backward 전에 losswise grad/cos 기록 (blockwise/global 선택 가능)
-        if tb_writer is not None and is_master(args):
-            tb_log_losswise_norm_and_cos(
-                tb_writer,
-                model,
-                loss_dict,
-                step,
-                every=500,                 
-                tag="train/losswise",
-                max_elems=1_000_000,
-                enable=True,
-                enable_text=True,           # text tower 포함 시 True
-                mode="global",           # "global" or "both"
-            )
 
         if scaler is not None:
             scaler.scale(total_loss).backward()
@@ -294,49 +225,11 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
                 optimizer.synchronize()
                 scaler.unscale_(optimizer)
 
-                 # (추가) grad norm 기록 (global)
-                if is_master(args):
-                    tb_log_total_grad(tb_writer, model, step, every=100, enable=True)
-
-
-                # (추가) grad norm 기록 (blockwise)
-                if tb_writer is not None and is_master(args):
-                    tb_log_blockwise_total_grad(
-                        tb_writer,
-                        unwrap_model(model),
-                        step,
-                        every=100,
-                        tag="train/grad_block",
-                        enable=False,
-                        enable_text=True,
-                    )
-
-
                 if args.grad_clip_norm is not None:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm, norm_type=2.0)
                 with optimizer.skip_synchronize():
                     scaler.step(optimizer)
             else:
-                # (추가) 로깅을 위한 unscale
-                scaler.unscale_(optimizer)
-
-                # (추가) grad norm 기록 (global)
-                if is_master(args):
-                    tb_log_total_grad(tb_writer, model, step, every=100, enable=True)
-
-
-                # (추가) grad norm 기록 (blockwise)
-                if tb_writer is not None and is_master(args):
-                    tb_log_blockwise_total_grad(
-                        tb_writer,
-                        unwrap_model(model),
-                        step,
-                        every=100,
-                        tag="train/grad_block",
-                        enable=False,
-                        enable_text=True,
-                    )
-
                 if args.grad_clip_norm is not None:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip_norm, norm_type=2.0)
                 scaler.step(optimizer)
@@ -369,10 +262,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
             loss_fd.update(fd_loss.item(), batch_size)
             loss_gd.update(gd_loss.item(), batch_size)
             loss_afd.update(afd_loss.item(), batch_size)
-            # loss_new.update(new_loss.item(), batch_size)
-            # loss_new_ce_img.update(new_ce_img.item(), batch_size)
-            # loss_new_ce_txt.update(new_ce_txt.item(), batch_size)
-            # loss_newnew.update(newnew_loss.item(), batch_size)
+            loss_new.update(new_loss.item(), batch_size)
+            loss_new_ce_img.update(new_ce_img.item(), batch_size)
+            loss_new_ce_txt.update(new_ce_txt.item(), batch_size)
+            loss_newnew.update(newnew_loss.item(), batch_size)
             logit_scale_scalar = logit_scale.item()
             logging.info(
                 f"Train Epoch: {epoch} [{num_samples:>{sample_digits}}/{samples_per_epoch} ({percent_complete:.0f}%)] "
@@ -384,10 +277,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
                 f"FD Loss: {loss_fd.val:#.5g} ({loss_fd.avg:#.4g}) "
                 f"GD Loss: {loss_gd.val:#.5g} ({loss_gd.avg:#.4g}) "
                 f"AFD Loss: {loss_afd.val:#.5g} ({loss_afd.avg:#.4g}) "
-                # f"new Loss: {loss_new.val:#.5g} ({loss_new.avg:#.4g}) "
-                # f"new ce txt: {loss_new_ce_txt.val:#.5g} ({loss_new_ce_txt.avg:#.4g}) "
-                # f"new ce img: {loss_new_ce_img.val:#.5g} ({loss_new_ce_img.avg:#.4g}) "
-                # f"newnew Loss: {loss_newnew.val:#.5g} ({loss_newnew.avg:#.4g}) "
+                f"new Loss: {loss_new.val:#.5g} ({loss_new.avg:#.4g}) "
+                f"new ce txt: {loss_new_ce_txt.val:#.5g} ({loss_new_ce_txt.avg:#.4g}) "
+                f"new ce img: {loss_new_ce_img.val:#.5g} ({loss_new_ce_img.avg:#.4g}) "
+                f"newnew Loss: {loss_newnew.val:#.5g} ({loss_newnew.avg:#.4g}) "
                 f"Data (t): {data_time_m.avg:.3f} "
                 f"Batch (t): {batch_time_m.avg:.3f}, {args.batch_size*args.world_size / batch_time_m.val:#g}/s "
                 f"LR: {optimizer.param_groups[0]['lr']:5f} "
