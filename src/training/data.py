@@ -15,7 +15,7 @@ import pandas as pd
 import torch
 import torchvision.datasets as datasets
 import webdataset as wds
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from torch.utils.data import Dataset, DataLoader, SubsetRandomSampler, IterableDataset, get_worker_info
 from torch.utils.data.distributed import DistributedSampler
 from webdataset.filters import _shuffle
@@ -55,7 +55,7 @@ class CsvDataset(Dataset):
         texts = self.tokenize([str(self.captions[idx])])[0]
         return images, texts
 
-
+        
 class ImageNetCsvDataset(Dataset):
     def __init__(self, data_root, input_filename, transforms, img_key, caption_key, sep="\t", tokenizer=None):
         logging.debug(f'Loading csv data from {input_filename}.')
@@ -106,7 +106,10 @@ class RetrievalDataset(Dataset):
         eval_img_keys_file = 'test_img_keys.tsv'
         with open(os.path.join(self.data_path, eval_img_keys_file), 'r') as f:
             img_keys = f.readlines()
-        self.img_keys = [int(k.strip()) for k in img_keys]
+        if 'coco' in self.data_path:
+            self.img_keys = [int(k.strip()) for k in img_keys]
+        else: 
+            self.img_keys = [k.strip() for k in img_keys]
         self.captions = {k: self.captions[k] for k in self.img_keys}
         if not type(self.captions[self.img_keys[0]]) == list:
             self.captions = {k: json.loads(self.captions[k]) for k in self.img_keys}
@@ -119,7 +122,7 @@ class RetrievalDataset(Dataset):
         if 'coco' in self.data_path:
             image = Image.open(os.path.join(self.data_path, 'images/val2014/', 'COCO_val2014_{:012}.jpg'.format(img_key)))
         else:
-            image = Image.open(os.path.join(self.data_path, 'images/{}.jpg'.format(img_key)))
+            image = Image.open(os.path.join(self.data_path, "images", img_key)).convert("RGB")
         image = self.transform(image)
 
         captions = self.captions[img_key]
@@ -594,6 +597,8 @@ def get_vl_imagenet(args, preprocess_fn, is_train, epoch=0, tokenizer=None):
 
 
 def get_csv_dataset(args, preprocess_fn, is_train, epoch=0, tokenizer=None):
+    # if args.rank == 0:
+    #     print("[DEBUG] get_csv_dataset called. collate_fn will be:", collate_skip_none)
     input_filename = args.train_data if is_train else args.val_data
     data_root = args.data_root if is_train else args.val_data_root
     if 'imagenet' in input_filename:
@@ -630,6 +635,8 @@ def get_csv_dataset(args, preprocess_fn, is_train, epoch=0, tokenizer=None):
         pin_memory=True,
         sampler=sampler,
         drop_last=is_train,
+        # collate_fn=collate_skip_none,   # 추가
+        persistent_workers=True,        # (이미지 로더면 보통 이득)
     )
     dataloader.num_samples = num_samples
     dataloader.num_batches = len(dataloader)
@@ -677,6 +684,7 @@ def get_csv_multi_dataset(args, preprocess_fn, is_train, epoch=0, tokenizer=None
         pin_memory=True,
         sampler=sampler,
         drop_last=is_train,
+        # collate_fn=collate_skip_none,
     )
     dataloader.num_samples = num_samples
     dataloader.num_batches = len(dataloader)
@@ -785,4 +793,8 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
         
     if args.imagenet_sketch is not None: 
         data["imagenet-sketch"] = get_imagenet(args, args.imagenet_sketch, preprocess_fns)  
+
+    if args.zeroshot is not None: 
+        data["zeroshot"] = get_imagenet(args, args.zeroshot, preprocess_fns)
+        
     return data
