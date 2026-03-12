@@ -1,5 +1,5 @@
 cd src
-torchrun --nproc_per_node 2 -m \
+torchrun --nproc_per_node 1 -m \
     --master_addr=127.0.0.3 --master_port=29533 \
     training.main \
     -- \
