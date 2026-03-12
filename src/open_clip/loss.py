@@ -273,6 +273,11 @@ class KDClipLoss(nn.Module):
             
             normalized_image_features = F.normalize(image_features, dim=1)
             normalized_text_features = F.normalize(text_features, dim=1)
+
+            if self.args.t_embed_dim != self.args.s_embed_dim:
+                all_image_features = self.visual_proj(all_image_features)
+                all_text_features = self.text_proj(all_text_features)
+
             normalized_all_image_features = F.normalize(all_image_features, dim=1)
             normalized_all_text_features = F.normalize(all_text_features, dim=1)
             
@@ -292,6 +297,15 @@ class KDClipLoss(nn.Module):
             else:
                 logits_per_image = logit_scale * normalized_all_image_features @ normalized_all_text_features.T
                 logits_per_text = logits_per_image.T
+                ts_logits_per_image = self.image_logit_scale * t_all_image_features @ normalized_all_image_features.T
+                ts_logits_per_text = self.text_logit_scale * t_all_text_features @ normalized_all_text_features.T
+                st_logits_per_image = self.image_logit_scale * normalized_all_image_features @ t_all_image_features.T
+                st_logits_per_text = self.text_logit_scale * normalized_all_text_features @ t_all_text_features.T
+                
+                tist_logits = self.cross_logit_scale * t_all_image_features @ normalized_all_text_features.T
+                ttsi_logits = self.cross_logit_scale * t_all_text_features @ normalized_all_image_features.T
+                sitt_logits = self.cross_logit_scale * normalized_all_image_features @ t_all_text_features.T
+                stti_logits = self.cross_logit_scale * normalized_all_text_features @ t_all_image_features.T
         else:
             logits_per_image = logit_scale * normalized_image_features @ normalized_text_features.T
             logits_per_text = logit_scale * normalized_text_features @ normalized_image_features.T
@@ -318,22 +332,6 @@ class KDClipLoss(nn.Module):
         else:
             labels = self.labels[device]
 
-        if self.args.t_embed_dim != self.args.s_embed_dim:
-            all_image_features = self.visual_proj(all_image_features)
-            all_text_features = self.text_proj(all_text_features)
-            
-        normalized_all_image_features = F.normalize(all_image_features, dim=1)
-        normalized_all_text_features = F.normalize(all_text_features, dim=1)
-
-        ts_logits_per_image = self.image_logit_scale * t_all_image_features @ normalized_all_image_features.T
-        ts_logits_per_text = self.text_logit_scale * t_all_text_features @ normalized_all_text_features.T
-        st_logits_per_image = self.image_logit_scale * normalized_all_image_features @ t_all_image_features.T
-        st_logits_per_text = self.text_logit_scale * normalized_all_text_features @ t_all_text_features.T
-          
-        tist_logits = self.cross_logit_scale * t_all_image_features @ normalized_all_text_features.T
-        ttsi_logits = self.cross_logit_scale * t_all_text_features @ normalized_all_image_features.T
-        sitt_logits = self.cross_logit_scale * normalized_all_image_features @ t_all_text_features.T
-        stti_logits = self.cross_logit_scale * normalized_all_text_features @ t_all_image_features.T
 
         fd_loss = F.mse_loss(normalized_all_image_features, t_all_image_features) +\
             F.mse_loss(normalized_all_text_features, t_all_text_features)
