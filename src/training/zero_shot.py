@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from open_clip import get_cast_dtype, get_tokenizer
 from .precision import get_autocast
-from .imagenet_zeroshot_data import imagenet_classnames, openai_imagenet_template, imagenet_a, imagenet_r_indices
+from .imagenet_zeroshot_data import imagenet_classnames, openai_imagenet_template, imagenet_r_indices
 
 
 def zero_shot_classifier(model, classnames, templates, args):
@@ -41,9 +41,7 @@ def run(model, classifier, dataloader, args, name):
     autocast = get_autocast(args.precision)
     cast_dtype = get_cast_dtype(args.precision)
     
-    if name == 'imagenet-a':
-        imagenet_a_indices = [k for k in imagenet_a if imagenet_a[k] != -1]
-    
+
     with torch.no_grad():
         top1, top5, n = 0., 0., 0.
         for images, target in tqdm(dataloader, unit_scale=args.batch_size):
@@ -67,8 +65,6 @@ def run(model, classifier, dataloader, args, name):
             # measure accuracy
             if name == 'imagenet-r':
                 logits = logits[:,imagenet_r_indices]
-            if name == 'imagenet-a':
-                logits = logits[:,imagenet_a_indices]
             acc1, acc5 = accuracy(logits, target, topk=(1, 5))
             top1 += acc1
             top5 += acc5
@@ -111,10 +107,6 @@ def zero_shot_eval(model, data, epoch, args):
         top1, top5 = run(model, classifier, data['imagenet-r'].dataloader, args, 'imagenet-r')
         results['imagenet-r-zeroshot-val-top1'] = top1
         results['imagenet-r-zeroshot-val-top5'] = top5
-    if 'imagenet-a' in data:
-        top1, top5 = run(model, classifier, data['imagenet-a'].dataloader, args, 'imagenet-a')
-        results['imagenet-a-zeroshot-val-top1'] = top1
-        results['imagenet-a-zeroshot-val-top5'] = top5
     if 'imagenet-sketch' in data:
         top1, top5 = run(model, classifier, data['imagenet-sketch'].dataloader, args, 'imagenet-sketch')
         results['imagenet-sketch-zeroshot-val-top1'] = top1
