@@ -175,15 +175,12 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
     loss_m = AverageMeter()
     loss_task = AverageMeter()
     loss_icl = AverageMeter()
-    loss_ckd = AverageMeter()
-    loss_cross_kd  = AverageMeter()
+    loss_hrd = AverageMeter()
     loss_fd = AverageMeter()
-    loss_gd = AverageMeter()
-    loss_afd = AverageMeter()
-    loss_new = AverageMeter()
-    loss_new_ce_img = AverageMeter()
-    loss_new_ce_txt = AverageMeter()
-    loss_newnew = AverageMeter()
+    loss_vrd = AverageMeter()
+    loss_vrd_ce_img = AverageMeter()
+    loss_vrd_ce_txt = AverageMeter()
+    loss_xrd = AverageMeter()
     batch_time_m = AverageMeter()
     data_time_m = AverageMeter()
     end = time.time()
@@ -213,9 +210,9 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
 
             losses = loss(image_features, text_features, logit_scale, \
                 t_image_features, t_text_features, t_logit_scale, current_step=step)
-             
-            task_loss, ckd_loss, icl_loss, cross_kd_loss, fd_loss, gd_loss, afd_loss, new_loss, new_ce_img, new_ce_txt, newnew_loss = losses
-            total_loss = task_loss + ckd_loss + icl_loss + cross_kd_loss + fd_loss + gd_loss + afd_loss + new_loss + new_ce_img + new_ce_txt + newnew_loss
+            
+            task_loss, hrd_loss, icl_loss, fd_loss, vrd_loss, vrd_ce_img, vrd_ce_txt, xrd_loss = losses
+            total_loss = task_loss + hrd_loss + icl_loss + fd_loss + vrd_loss + vrd_ce_img + vrd_ce_txt + xrd_loss
 
 
         if scaler is not None:
