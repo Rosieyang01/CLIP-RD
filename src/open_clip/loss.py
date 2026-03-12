@@ -310,6 +310,10 @@ class KDClipLoss(nn.Module):
             logits_per_image = logit_scale * normalized_image_features @ normalized_text_features.T
             logits_per_text = logit_scale * normalized_text_features @ normalized_image_features.T
 
+            if self.args.t_embed_dim != self.args.s_embed_dim:
+                all_image_features = self.visual_proj(all_image_features)
+                all_text_features = self.text_proj(all_text_features)
+                
             ts_logits_per_image = self.image_logit_scale * t_all_image_features @ normalized_image_features.T
             ts_logits_per_text = self.text_logit_scale * t_all_text_features @ normalized_text_features.T
             st_logits_per_image = self.image_logit_scale * normalized_image_features @ t_all_image_features.T
