@@ -111,12 +111,6 @@ def parse_args(args):
         help="Path to imagenet-r for conducting zero shot evaluation.",
     )
     parser.add_argument(
-        "--imagenet-a",
-        type=str,
-        default=None,
-        help="Path to imagenet-a for conducting zero shot evaluation.",
-    )
-    parser.add_argument(
         "--imagenet-sketch",
         type=str,
         default=None,
