@@ -13,7 +13,7 @@ def grab(args):
     """
     Download a single image from the TSV.
     """
-    uid, split, line, root = args   # ★ ROOT 대신 root 인자로 받음
+    uid, split, line, root = args
     try:
         caption, url = line.split("\t")[:2]
     except:
@@ -38,7 +38,6 @@ def grab(args):
             print("Too small", url)
             return
 
-        # ★ 디렉터리 자동 생성 추가
         os.makedirs(os.path.dirname(dst), exist_ok=True)
 
         im.save(dst)
@@ -57,7 +56,7 @@ def grab(args):
 
 
 if __name__ == "__main__":
-    root = sys.argv[1]  # ★ ROOT를 지역변수로 받음
+    root = sys.argv[1] 
 
     if not os.path.exists(root):
         os.mkdir(root)
@@ -67,7 +66,6 @@ if __name__ == "__main__":
             os.mkdir(os.path.join(root, "train", str(i)))
             os.mkdir(os.path.join(root, "val", str(i)))
 
-    # ★ 멀티프로세스 너무 많으면 서버 멈춤 → 16~24로 제한
     num_workers = min(mp.cpu_count(), 16)
     p = mp.Pool(num_workers)
 
@@ -79,7 +77,6 @@ if __name__ == "__main__":
         with open(tsv, "r") as f:
             lines = f.read().split("\n")
 
-        # ★ ROOT를 grab에 직접 전달
         results = p.map(grab, [(i, split, x, root) for i, x in enumerate(lines)])
 
         out = open(tsv.replace(".tsv", ".csv"), "w")
