@@ -189,9 +189,7 @@ class CLIP(nn.Module):
         self.visual.set_grad_checkpointing(enable)
         self.transformer.grad_checkpointing = enable
 
-    def encode_image(self, image, normalize: bool = False, mask_ratio=0.):
-        if mask_ratio > 0.:
-            features = self.visual.mask_forward(image, mask_ratio)
+    def encode_image(self, image, normalize: bool = False):
         features = self.visual(image)
         
         return F.normalize(features, dim=-1) if normalize else features
@@ -210,11 +208,11 @@ class CLIP(nn.Module):
         x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection
         return F.normalize(x, dim=-1) if normalize else x
 
-    def forward(self, image, text, distill=False, mask_ratio=0.):
+    def forward(self, image, text, distill=False):
         flag = True
         if distill is True:
             flag = False
-        image_features = self.encode_image(image, normalize=flag, mask_ratio=mask_ratio)
+        image_features = self.encode_image(image, normalize=flag)
         text_features = self.encode_text(text, normalize=flag)
         return image_features, text_features, self.logit_scale.exp()
 
@@ -435,3 +433,4 @@ def resize_pos_embed(state_dict, model, interpolation: str = 'bicubic', seq_dim=
     else:
         new_pos_embed = pos_emb_img
     state_dict['visual.positional_embedding'] = new_pos_embed
+
