@@ -1,5 +1,5 @@
 cd src
-torchrun --nproc_per_node 2 -m \
+torchrun --nproc_per_node 1 -m \
     --master_addr=127.0.0.3 --master_port=29560 \
     training.main \
     -- \
@@ -10,10 +10,9 @@ torchrun --nproc_per_node 2 -m \
     --imagenet-val=path/to/imageNet_val/ \
     --imagenet-v2=path/to/imagenetv2-matched-frequency-format-val_copy/ \
     --imagenet-r=path/to/imagenet-r/ \
-    --imagenet-a=path/to/imagenet-a/ \
     --imagenet-sketch=path/to/sketch/ \
     --warmup 10000 \
-    --batch-size=512 \
+    --batch-size=1024 \
     --lr=1e-3 \
     --wd=0.1 \
     --epochs 32 \
