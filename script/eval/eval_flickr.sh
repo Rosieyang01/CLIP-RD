@@ -1,5 +1,5 @@
-
-torchrun --nproc_per_node 2 -m \
+cd src
+torchrun --nproc_per_node 1 -m \
     --master_addr=127.0.0.3 --master_port=29533 \
     training.main \
     -- \
@@ -12,7 +12,7 @@ torchrun --nproc_per_node 2 -m \
     --csv-caption-key title \
     --val-data-root path/to/flickrir \
     --warmup 10000 \
-    --batch-size=512 \
+    --batch-size=1024 \
     --lr=1e-3 \
     --wd=0.1 \
     --epochs 32 \
