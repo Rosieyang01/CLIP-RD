@@ -170,8 +170,8 @@ def parse_args(args):
     parser.add_argument("--alpha_hrd_loss", type=float, default=0., help="HRD loss weight")
     parser.add_argument("--alpha_icl_loss", type=float, default=0., help="ICL_loss weight")
     parser.add_argument("--alpha_fd_loss", type=float, default=0., help="FD_loss weight")
-    parser.add_argument("--alpha_vrd_loss", type=float, default=0., help="VRD loss weight")
-    parser.add_argument("--alpha_xrd_loss", type=float, default=0., help="XRD loss weight")
+    parser.add_argument("--alpha_VRD_loss", type=float, default=0., help="VRD loss weight")
+    parser.add_argument("--alpha_XRD_loss", type=float, default=0., help="XRD loss weight")
     
     
     parser.add_argument("--wd", type=float, default=0.2, help="Weight decay.")

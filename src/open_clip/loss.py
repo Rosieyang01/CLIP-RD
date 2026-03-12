@@ -346,15 +346,15 @@ class KDClipLoss(nn.Module):
         
         hrd_loss = torch.tensor(0.).cuda() 
         icl_loss = torch.tensor(0.).cuda()
-        vrd_loss = torch.tensor(0.).cuda()
-        vrd_ce_img = torch.tensor(0.).cuda()
-        vrd_ce_txt = torch.tensor(0.).cuda()
-        xrd_loss = torch.tensor(0.).cuda()  
+        VRD_loss = torch.tensor(0.).cuda()
+        VRD_ce_img = torch.tensor(0.).cuda()
+        VRD_ce_txt = torch.tensor(0.).cuda()
+        XRD_loss = torch.tensor(0.).cuda()  
         
-        vrd_ce_img = (F.cross_entropy(ts_logits_per_image, labels) + F.cross_entropy(st_logits_per_image, labels)) / 2
-        vrd_ce_txt = (F.cross_entropy(ts_logits_per_text, labels) + F.cross_entropy(st_logits_per_text, labels)) /2
+        VRD_ce_img = (F.cross_entropy(ts_logits_per_image, labels) + F.cross_entropy(st_logits_per_image, labels)) / 2
+        VRD_ce_txt = (F.cross_entropy(ts_logits_per_text, labels) + F.cross_entropy(st_logits_per_text, labels)) /2
         
-        vrd_loss = (self.kl_loss(ts_logits_per_image, ts_logits_per_text.detach()) +\
+        VRD_loss = (self.kl_loss(ts_logits_per_image, ts_logits_per_text.detach()) +\
              self.kl_loss(st_logits_per_image, st_logits_per_text.detach())) / 2
 
         icl_loss = (
@@ -365,7 +365,7 @@ class KDClipLoss(nn.Module):
         hrd_loss = (self.kl_loss(logits_per_image, t_logits_per_image.detach()) +\
             self.kl_loss(logits_per_text, t_logits_per_text.detach())) / 2
         
-        xrd_loss = (self.kl_loss(tist_logits, ttsi_logits.detach()) +\
+        XRD_loss = (self.kl_loss(tist_logits, ttsi_logits.detach()) +\
              self.kl_loss(ttsi_logits, tist_logits.detach()) +\
              self.kl_loss(stti_logits, sitt_logits.detach()) +\
              self.kl_loss(sitt_logits, stti_logits.detach())) / 4
@@ -373,10 +373,10 @@ class KDClipLoss(nn.Module):
         hrd_loss = self.args.alpha_hrd_loss * hrd_loss
         icl_loss = self.args.alpha_icl_loss * icl_loss
         fd_loss = self.args.alpha_fd_loss * fd_loss
-        vrd_loss = self.args.alpha_vrd_loss * vrd_loss
-        vrd_ce_img = self.args.alpha_vrd_loss * vrd_ce_img
-        vrd_ce_txt = self.args.alpha_vrd_loss * vrd_ce_txt
-        xrd_loss = self.args.alpha_xrd_loss * xrd_loss
+        VRD_loss = self.args.alpha_VRD_loss * VRD_loss
+        VRD_ce_img = self.args.alpha_VRD_loss * VRD_ce_img
+        VRD_ce_txt = self.args.alpha_VRD_loss * VRD_ce_txt
+        XRD_loss = self.args.alpha_XRD_loss * XRD_loss
 
         
-        return task_loss, hrd_loss, icl_loss, fd_loss, vrd_loss, vrd_ce_img, vrd_ce_txt, xrd_loss
+        return task_loss, hrd_loss, icl_loss, fd_loss, VRD_loss, VRD_ce_img, VRD_ce_txt, XRD_loss

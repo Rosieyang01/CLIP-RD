@@ -25,6 +25,6 @@ torchrun --nproc_per_node 2 -m \
     --alpha_icl_loss 1. \
     --alpha_fd_loss 2000. \
     --alpha_hrd_loss 1. \
-    --alpha_vrd_loss 1. \
-    --alpha_xrd_loss 1. \
+    --alpha_VRD_loss 1. \
+    --alpha_XRD_loss 1. \
     --tag distill-new 

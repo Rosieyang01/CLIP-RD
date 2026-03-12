@@ -177,10 +177,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
     loss_icl = AverageMeter()
     loss_hrd = AverageMeter()
     loss_fd = AverageMeter()
-    loss_vrd = AverageMeter()
-    loss_vrd_ce_img = AverageMeter()
-    loss_vrd_ce_txt = AverageMeter()
-    loss_xrd = AverageMeter()
+    loss_VRD = AverageMeter()
+    loss_VRD_ce_img = AverageMeter()
+    loss_VRD_ce_txt = AverageMeter()
+    loss_XRD = AverageMeter()
     batch_time_m = AverageMeter()
     data_time_m = AverageMeter()
     end = time.time()
@@ -211,8 +211,8 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
             losses = loss(image_features, text_features, logit_scale, \
                 t_image_features, t_text_features, t_logit_scale, current_step=step)
              
-            task_loss, hrd_loss, icl_loss, fd_loss, vrd_loss, vrd_ce_img, vrd_ce_txt, xrd_loss = losses
-            total_loss = task_loss + hrd_loss + icl_loss + fd_loss + vrd_loss + vrd_ce_img + vrd_ce_txt + xrd_loss
+            task_loss, hrd_loss, icl_loss, fd_loss, VRD_loss, VRD_ce_img, VRD_ce_txt, XRD_loss = losses
+            total_loss = task_loss + hrd_loss + icl_loss + fd_loss + VRD_loss + VRD_ce_img + VRD_ce_txt + XRD_loss
 
 
         if scaler is not None:
@@ -255,10 +255,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
             loss_icl.update(icl_loss.item(), batch_size)
             loss_hrd.update(hrd_loss.item(), batch_size)
             loss_fd.update(fd_loss.item(), batch_size)
-            loss_vrd.update(vrd_loss.item(), batch_size)
-            loss_vrd_ce_img.update(vrd_ce_img.item(), batch_size)
-            loss_vrd_ce_txt.update(vrd_ce_txt.item(), batch_size)
-            loss_xrd.update(xrd_loss.item(), batch_size)
+            loss_VRD.update(VRD_loss.item(), batch_size)
+            loss_VRD_ce_img.update(VRD_ce_img.item(), batch_size)
+            loss_VRD_ce_txt.update(VRD_ce_txt.item(), batch_size)
+            loss_XRD.update(XRD_loss.item(), batch_size)
             logit_scale_scalar = logit_scale.item()
             logging.info(
                 f"Train Epoch: {epoch} [{num_samples:>{sample_digits}}/{samples_per_epoch} ({percent_complete:.0f}%)] "
@@ -267,10 +267,10 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
                 f"ICL Loss: {loss_icl.val:#.5g} ({loss_icl.avg:#.4g}) "
                 f"HRD Loss: {loss_hrd.val:#.5g} ({loss_hrd.avg:#.4g}) "
                 f"FD Loss: {loss_fd.val:#.5g} ({loss_fd.avg:#.4g}) "
-                f"vrd Loss: {loss_vrd.val:#.5g} ({loss_vrd.avg:#.4g}) "
-                f"vrd ce txt: {loss_vrd_ce_txt.val:#.5g} ({loss_vrd_ce_txt.avg:#.4g}) "
-                f"vrd ce img: {loss_vrd_ce_img.val:#.5g} ({loss_vrd_ce_img.avg:#.4g}) "
-                f"xrd Loss: {loss_xrd.val:#.5g} ({loss_xrd.avg:#.4g}) "
+                f"VRD Loss: {loss_VRD.val:#.5g} ({loss_VRD.avg:#.4g}) "
+                f"VRD ce txt: {loss_VRD_ce_txt.val:#.5g} ({loss_VRD_ce_txt.avg:#.4g}) "
+                f"VRD ce img: {loss_VRD_ce_img.val:#.5g} ({loss_VRD_ce_img.avg:#.4g}) "
+                f"XRD Loss: {loss_XRD.val:#.5g} ({loss_XRD.avg:#.4g}) "
                 f"Data (t): {data_time_m.avg:.3f} "
                 f"Batch (t): {batch_time_m.avg:.3f}, {args.batch_size*args.world_size / batch_time_m.val:#g}/s "
                 f"LR: {optimizer.param_groups[0]['lr']:5f} "
