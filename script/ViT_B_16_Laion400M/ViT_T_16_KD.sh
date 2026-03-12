@@ -22,7 +22,7 @@ torchrun --nproc_per_node 2 -m \
     --t-model ViT-B-16 \
     --t-model-checkpoint path/to/vit_b_16-laion400m_e32-55e67d44.pt \
     --logs path/to/logs/ \
-    --alpha_ckd_loss 1. \
     --alpha_icl_loss 1. \
     --alpha_fd_loss 2000. \
+    --alpha_hrd_loss 1. \
     --tag distill-new 
