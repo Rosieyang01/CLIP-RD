@@ -17,7 +17,6 @@ from open_clip import ClipLoss, KDClipLoss, get_cast_dtype
 from .distributed import is_master
 from .zero_shot import zero_shot_eval
 from .precision import get_autocast
-from .grad_analysis import tb_log_total_grad, tb_log_losswise_norm_and_cos, log_losses, tb_log_blockwise_total_grad
 
 
 class AverageMeter(object):
