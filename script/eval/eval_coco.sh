@@ -20,5 +20,4 @@ torchrun --nproc_per_node 2 -m \
     --model ViT-T-16 \
     --resume path/to/model.pt \
     --logs path/to/logs/  \
-    --eval \
     --tag eval_coco
