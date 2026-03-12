@@ -18,7 +18,6 @@ torchrun --nproc_per_node 1 -m \
     --epochs 32 \
     --workers=16 \
     --model ViT-T-16 \
-    --t-model ViT-B-16 \
     --resume path/to/model.pt \
     --logs path/to/logs/  \
     --tag eval_flickr
