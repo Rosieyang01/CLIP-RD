@@ -376,8 +376,8 @@ class KDClipLoss(nn.Module):
         icl_loss = self.args.alpha_icl_loss * icl_loss
         fd_loss = self.args.alpha_fd_loss * fd_loss
         vrd_loss = self.args.alpha_vrd_loss * vrd_loss
-        vrd_ce_img = self.args.alpha_vrd_ce_img * vrd_ce_img
-        vrd_ce_txt = self.args.alpha_vrd_ce_txt * vrd_ce_txt
+        vrd_ce_img = self.args.alpha_vrd_loss * vrd_ce_img
+        vrd_ce_txt = self.args.alpha_vrd_loss * vrd_ce_txt
         xrd_loss = self.args.alpha_xrd_loss * xrd_loss
 
         
