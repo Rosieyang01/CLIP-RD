@@ -203,7 +203,7 @@ def train_kd_one_epoch(model, t_model, data, epoch, loss, optimizer, scaler, sch
         optimizer.zero_grad()
 
         with autocast():
-            image_features, text_features, logit_scale = model(images, texts, distill=True, mask_ratio=args.mask_ratio)
+            image_features, text_features, logit_scale = model(images, texts, distill=True)
 
             with torch.no_grad():
                 t_image_features, t_text_features, t_logit_scale = t_model(images, texts)
