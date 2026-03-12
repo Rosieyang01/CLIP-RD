@@ -277,8 +277,8 @@ class KDClipLoss(nn.Module):
             normalized_all_text_features = F.normalize(all_text_features, dim=1)
             
             if self.local_loss:
-                logits_per_image = logit_scale * normalized_image_features @ normalized_all_text_features.T #student의 이미지->텍스트
-                logits_per_text = logit_scale * normalized_text_features @ normalized_all_image_features.T #student의 텍스트->이미지
+                logits_per_image = logit_scale * normalized_image_features @ normalized_all_text_features.T
+                logits_per_text = logit_scale * normalized_text_features @ normalized_all_image_features.T
 
                 ts_logits_per_image = self.image_logit_scale * t_all_image_features @ normalized_all_image_features.T
                 ts_logits_per_text = self.text_logit_scale * t_all_text_features @ normalized_all_text_features.T
