@@ -2,14 +2,14 @@ cd src
 torchrun --nproc_per_node 2 -m \
     --master_addr=127.0.0.3 --master_port=29533 \
     training.main \
+    -- \
+    --eval \
     --save-frequency 1 \
     --zeroshot-frequency 1 \
     --report-to tensorboard \
-    --train-data="path/to/cc3m_train.csv,path/to/cc12m.csv"  \
     --val-data="path/to/cocoir/"  \
     --csv-img-key filepath \
     --csv-caption-key title \
-    --data-root path/to/cc3m/images/,path/to/cc12m/images/ \
     --val-data-root path/to/cocoir \
     --warmup 10000 \
     --batch-size=512 \

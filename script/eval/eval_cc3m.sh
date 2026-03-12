@@ -2,6 +2,7 @@ cd src
 torchrun --nproc_per_node 2 -m \
     --master_addr=127.0.0.3 --master_port=29533 \
     training.main \
+    -- \
     --save-frequency 1 \
     --zeroshot-frequency 1 \
     --report-to tensorboard \
@@ -18,7 +19,7 @@ torchrun --nproc_per_node 2 -m \
     --epochs 32 \
     --workers=16 \
     --model ViT-T-16 \
+    --t-model ViT-B-16 \
     --resume path/to/model.pt \
     --logs path/to/logs/  \
-    --eval \
     --tag eval_cc3m_val
