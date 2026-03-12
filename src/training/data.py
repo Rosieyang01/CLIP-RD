@@ -787,10 +787,7 @@ def get_data(args, preprocess_fns, epoch=0, tokenizer=None):
     
     if args.imagenet_r is not None:
         data["imagenet-r"] = get_imagenet(args, args.imagenet_r, preprocess_fns)  
-        
-    if args.imagenet_a is not None:
-        data["imagenet-a"] = get_imagenet(args, args.imagenet_a, preprocess_fns)  
-        
+                
     if args.imagenet_sketch is not None: 
         data["imagenet-sketch"] = get_imagenet(args, args.imagenet_sketch, preprocess_fns)  
 
