@@ -21,3 +21,4 @@ torchrun --nproc_per_node 1 -m \
     --resume path/to/model.pt \
     --logs path/to/logs/  \
     --tag eval_flickr
+#After downloading Flickr, you need to preprocess it using the Karpathy split.
