@@ -177,8 +177,6 @@ def parse_args(args):
     parser.add_argument("--alpha_icl_loss", type=float, default=0., help="ICL_loss weight")
     parser.add_argument("--alpha_fd_loss", type=float, default=0., help="FD_loss weight")
     parser.add_argument("--alpha_vrd_loss", type=float, default=0., help="VRD loss weight")
-    parser.add_argument("--alpha_vrd_ce_img", type=float, default=0., help="VRD ce img loss weight")
-    parser.add_argument("--alpha_vrd_ce_txt", type=float, default=0., help="VRD ce txt loss weight")
     parser.add_argument("--alpha_xrd_loss", type=float, default=0., help="XRD loss weight")
     
     
