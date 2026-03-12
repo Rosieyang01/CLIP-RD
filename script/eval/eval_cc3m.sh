@@ -7,9 +7,7 @@ torchrun --nproc_per_node 1 -m \
     --save-frequency 1 \
     --zeroshot-frequency 1 \
     --report-to tensorboard \
-    --train-data="path/to/cc3m_train.csv,path/to/cc12m.csv"  \
     --val-data="path/to/cc3m/val"  \
-    --data-root path/to/cc3m/images/,path/to/cc12m/images/ \
     --val-data-root path/to/cc3m_val \
     --csv-img-key filepath \
     --csv-caption-key title \
