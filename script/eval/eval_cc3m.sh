@@ -3,6 +3,7 @@ torchrun --nproc_per_node 1 -m \
     --master_addr=127.0.0.3 --master_port=29533 \
     training.main \
     -- \
+    --eval \
     --save-frequency 1 \
     --zeroshot-frequency 1 \
     --report-to tensorboard \
