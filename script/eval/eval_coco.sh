@@ -12,7 +12,7 @@ torchrun --nproc_per_node 2 -m \
     --csv-caption-key title \
     --val-data-root path/to/cocoir \
     --warmup 10000 \
-    --batch-size=512 \
+    --batch-size=1024 \
     --lr=1e-3 \
     --wd=0.1 \
     --epochs 32 \
