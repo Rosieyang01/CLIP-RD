@@ -108,27 +108,38 @@ Before running the scripts, replace all `path/to/...` entries with the actual lo
 
 ## Result
 
-CLIP-RD aims to improve the student CLIP model by preserving relational knowledge from the teacher model in multiple directions. Compared with the baseline and conventional KD setting, CLIP-RD additionally considers vertical and cross relational distillation, allowing the student model to better inherit the teacher's image-text representation structure.
+We evaluate CLIP-RD on zero-shot classification and zero-shot cross-modal retrieval tasks. The teacher model is ViT-B/16, and the student model is ViT-T/16. For retrieval tasks, we report Recall@1 (R@1) for Image-to-Text (I2T) and Text-to-Image (T2I).
 
-The experimental results can be summarized as follows:
+### Main Results
 
-| Method   | Training Setting                 | Evaluation Dataset         | Metric     | Result        |
-| -------- | -------------------------------- | -------------------------- | ---------- | ------------- |
-| Baseline | Student only                     | MSCOCO / Flickr / ImageNet | R@K / Acc. | To be updated |
-| KD       | Feature + relational KD baseline | MSCOCO / Flickr / ImageNet | R@K / Acc. | To be updated |
-| CLIP-RD  | HRD + VRD + XRD                  | MSCOCO / Flickr / ImageNet | R@K / Acc. | To be updated |
+| Method | IN-1K | MSCOCO I2T | MSCOCO T2I | Flickr I2T | Flickr T2I |
+|---|---:|---:|---:|---:|---:|
+| T: ViT-B/16 | 67.1 | 39.5 | 36.5 | 76.5 | 75.5 |
+| S: ViT-T/16 | 29.3 | 18.2 | 17.9 | 39.3 | 42.0 |
+| TinyCLIP | 40.8 | 26.8 | 24.7 | 58.6 | 58.5 |
+| CLIP-KD* | 41.3 | 27.4 | 24.1 | 58.4 | 56.4 |
+| CLIP-RD (Ours) | 42.1 | 27.8 | 25.1 | 58.3 | 58.6 |
 
-To reproduce CLIP-RD training, run:
+CLIP-RD achieves 42.1% zero-shot accuracy on ImageNet-1K, outperforming the ViT-T/16 student baseline by 12.8%p, TinyCLIP by 1.3%p, and CLIP-KD by 0.8%p. On MSCOCO, CLIP-RD improves I2T and T2I retrieval over CLIP-KD by 0.4%p and 1.0%p, respectively. On Flickr, CLIP-RD achieves a 2.2%p improvement over CLIP-KD in T2I retrieval.
 
-```bash
-bash script/ViT_B_16_Laion400M/ViT_T_16_RD.sh
-```
+### Additional Zero-Shot Results
 
-To evaluate a trained checkpoint, update the `--resume` path in the evaluation script and run:
+| Method | IN-1K | IN-V2 | IN-R | IN-S | CC3M I2T | CC3M T2I |
+|---|---:|---:|---:|---:|---:|---:|
+| T: ViT-B/16 | 67.1 | 59.6 | 77.9 | 52.4 | 42.8 | 42.2 |
+| S: ViT-T/16 | 29.3 | 24.9 | 34.2 | 16.9 | 33.6 | 34.0 |
+| CLIP-KD | 41.3 | 35.5 | 46.3 | 26.3 | 40.2 | 38.7 |
+| CLIP-RD (Ours) | 42.1 | 36.2 | 48.3 | 27.3 | 40.6 | 39.3 |
 
-```bash
-bash script/eval/eval_coco.sh
-bash script/eval/eval_flickr.sh
-bash script/eval/eval_imagenet.sh
-```
+CLIP-RD consistently outperforms CLIP-KD on ImageNet variants and CC3M retrieval. In particular, it improves ImageNet-R by 2.0%p and CC3M retrieval by 0.4%p / 0.6%p on I2T / T2I.
 
+### Zero-Shot Classification on Various Datasets
+
+| Method | IN | CIFAR-10 | CIFAR-100 | EuroSAT | Food101 | RESISC45 | Sun397 | Caltech101 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| T: ViT-B/16 | 67.1 | 91.1 | 71.3 | 33.8 | 80.2 | 57.8 | 69.0 | 87.0 |
+| S: ViT-T/16 | 29.3 | 66.9 | 27.5 | 11.6 | 27.8 | 24.4 | 38.1 | 66.2 |
+| CLIP-KD | 41.3 | 74.2 | 39.9 | 18.0 | 41.6 | 32.6 | 51.6 | 75.9 |
+| CLIP-RD (Ours) | 42.1 | 75.5 | 42.3 | 25.5 | 43.2 | 32.6 | 52.0 | 78.0 |
+
+Across diverse zero-shot classification benchmarks, CLIP-RD improves over CLIP-KD by up to 7.5%p, with strong gains on EuroSAT, CIFAR-100, Food101, Sun397, and Caltech101.
