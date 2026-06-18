@@ -80,31 +80,48 @@ The tests cover basic model loading, pretrained checkpoint downloading, inferenc
 
 ## Description of Data
 
-The training scripts are configured for image-text pretraining data such as CC3M and CC12M. Each dataset should be prepared with a CSV annotation file and an image directory.
+### Conceptual Captions 3M
 
-The CSV file should contain image paths and captions. By default, the scripts use:
+OpenCLIP reads a CSV file containing two columns: an image path and its corresponding text caption.
 
-* `filepath`: image file path column
-* `title`: text caption column
+First, download the Conceptual Captions 3M URL files. For simplicity, rename `Train_GCC-training` to `cc3m_train.tsv` and `Validation_GCC-1.1.0-Validation` to `cc3m_val.tsv`. Then, run:
 
-Example structure:
-
-```text
-data/
-├── cc3m/
-│   ├── cc3m_train.csv
-│   ├── cc3m_val.csv
-│   └── images/
-├── cc12m/
-│   ├── cc12m.csv
-│   └── images/
-└── imagenet/
-    └── val/
+```bash
+python src/data/gather_cc.py \
+    path/to/cc3m/images/ \
+    path/to/cc3m_train.tsv \
+    path/to/cc3m_val.tsv
 ```
 
-For retrieval evaluation, MSCOCO and Flickr should be preprocessed using the Karpathy split. For zero-shot classification, ImageNet validation data and related variants such as ImageNet-V2, ImageNet-R, and ImageNet-Sketch can be used.
+The generated `cc3m_train.csv` and `cc3m_val.csv` files have the following format:
 
-Before running the scripts, replace all `path/to/...` entries with the actual local paths to the datasets, teacher checkpoint, model checkpoint, and log directory.
+| title | filepath |
+|---|---|
+| XXXXXX | train/X/X.jpg |
+| ... | ... |
+
+Our downloaded CC3M dataset contains approximately **2.89M training images** and **13K validation images**.
+
+### Conceptual Captions 12M
+
+First, download the Conceptual Captions 12M URL file. Then, run:
+
+```bash
+python src/data/gather_cc12m.py \
+    path/to/cc12m/images/ \
+    path/to/cc12m.tsv
+```
+
+The generated `cc12m.csv` file has the following format:
+
+| title | filepath |
+|---|---|
+| XXXXXX | train/X/X.jpg |
+| ... | ... |
+
+Our downloaded CC12M training dataset contains approximately **9.97M images**.
+
+> Replace all `path/to/...` entries with the corresponding local dataset paths before running the scripts.
 
 ## Result
 
