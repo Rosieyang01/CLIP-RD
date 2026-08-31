@@ -26,12 +26,8 @@ The provided scripts include:
 
 ## How to build
 
-This project does not require a separate build step. After installing the required Python packages, the code can be executed directly from the source directory.
+This project does not require a separate build step. After downloading the CLIP-RD file and installing the required Python packages, the code can be executed directly from the source directory.
 
-```bash
-git clone https://github.com/Rosieyang01/CLIP-RD.git
-cd CLIP-RD
-```
 
 If needed, set the Python path before running training or evaluation:
 
