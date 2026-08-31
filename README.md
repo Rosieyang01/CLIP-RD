@@ -11,15 +11,15 @@ The main components are organized as follows:
 * `src/open_clip/`: CLIP model implementation based on OpenCLIP.
 * `src/training/`: training, evaluation, loss computation, distributed training, and zero-shot evaluation code.
 * `src/data/`: dataset-related utilities.
-* `script/ViT_B_16_Laion400M/`: training scripts for baseline, KD, and CLIP-RD settings.
+* `script/distillation/`: training scripts for baseline, KD, and CLIP-RD settings.
 * `script/eval/`: evaluation scripts for image-text retrieval and zero-shot classification.
 * `tests/`: unit and integration tests for model loading, inference, and training.
 
 The provided scripts include:
 
-* `ViT_T_16_baseline.sh`: trains the student CLIP model without distillation.
-* `ViT_T_16_KD.sh`: trains the student model with the KD baseline.
-* `ViT_T_16_RD.sh`: trains the student model with the proposed CLIP-RD losses.
+* `student_baseline.sh`: trains the student CLIP model without distillation.
+* `student_KD.sh`: trains the student model with the KD baseline.
+* `student_RD.sh`: trains the student model with the proposed CLIP-RD losses.
 * `eval_coco.sh`: evaluates image-text retrieval on MSCOCO.
 * `eval_flickr.sh`: evaluates image-text retrieval on Flickr.
 * `eval_imagenet.sh`: evaluates zero-shot classification on ImageNet-related datasets.
@@ -125,38 +125,37 @@ Our downloaded CC12M training dataset contains approximately **9.97M images**.
 
 ## Result
 
-We evaluate CLIP-RD on zero-shot classification and zero-shot cross-modal retrieval tasks. The teacher model is ViT-B/16, and the student model is ViT-T/16. For retrieval tasks, we report Recall@1 (R@1) for Image-to-Text (I2T) and Text-to-Image (T2I).
+We evaluate CLIP-RD on zero-shot classification and zero-shot cross-modal retrieval tasks. The teacher model is ViT-L/14, and the student model is ViT-B/16. For retrieval tasks, we report Recall@1 (R@1) for Image-to-Text (I2T) and Text-to-Image (T2I).
 
 ### Main Results
 
 | Method | IN-1K | MSCOCO I2T | MSCOCO T2I | Flickr I2T | Flickr T2I |
 |---|---:|---:|---:|---:|---:|
-| T: ViT-B/16 | 67.1 | 39.5 | 36.5 | 76.5 | 75.5 |
-| S: ViT-T/16 | 29.3 | 18.2 | 17.9 | 39.3 | 42.0 |
-| TinyCLIP | 40.8 | 26.8 | 24.7 | 58.6 | 58.5 |
-| CLIP-KD* | 41.3 | 27.4 | 24.1 | 58.4 | 56.4 |
-| CLIP-RD (Ours) | 42.1 | 27.8 | 25.1 | 58.3 | 58.6 |
+| T: ViT-L/14 | 72.8 | 42.6 | 40.9 | 80.7 | 79.4 |
+| S: ViT-B/16 | 35.5 | 23.0 | 22.9 | 49.8 | 49.5 |
+| CLIP-KD | 55.4 | 37.1 | 35.1 | 73.3 | 69.7 |
+| CLIP-RD (Ours) | 57.2 | 37.8 | 36.7 | 73.7 | 71.7 |
 
-CLIP-RD achieves 42.1% zero-shot accuracy on ImageNet-1K, outperforming the ViT-T/16 student baseline by 12.8%p, TinyCLIP by 1.3%p, and CLIP-KD by 0.8%p. On MSCOCO, CLIP-RD improves I2T and T2I retrieval over CLIP-KD by 0.4%p and 1.0%p, respectively. On Flickr, CLIP-RD achieves a 2.2%p improvement over CLIP-KD in T2I retrieval.
+CLIP-RD achieves 57.2% accuracy and outperforms the baseline of ViT-B/16 by 21.7%p and CLIP-KD by 1.8\%p. We observe that CLIP-RD improves I2T retrieval R@1 by 0.7%p on MSCOCO and 0.4%p on Flickr over CLIP-KD. For T2I retrieval, our framework also outperforms CLIP-KD by 1.6%p on MSCOCO and 2.0%p on Flickr.
 
-### Additional Zero-Shot Results
+### Robustness to Domain Shifts
 
-| Method | IN-1K | IN-V2 | IN-R | IN-S | CC3M I2T | CC3M T2I |
-|---|---:|---:|---:|---:|---:|---:|
-| T: ViT-B/16 | 67.1 | 59.6 | 77.9 | 52.4 | 42.8 | 42.2 |
-| S: ViT-T/16 | 29.3 | 24.9 | 34.2 | 16.9 | 33.6 | 34.0 |
-| CLIP-KD | 41.3 | 35.5 | 46.3 | 26.3 | 40.2 | 38.7 |
-| CLIP-RD (Ours) | 42.1 | 36.2 | 48.3 | 27.3 | 40.6 | 39.3 |
+| Method | IN-1K | IN-V2 | IN-R | IN-S |
+|---|---:|---:|---:|---:|
+| T: ViT-L/14 | 72.8 | 65.5 | 84.7 | 59.6 |
+| S: ViT-B/16 | 35.5 | 31.1 | 46.8 | 24.5 |
+| CLIP-KD | 55.4 | 48.3 | 69.8 | 43.5 |
+| CLIP-RD (Ours) | 57.2 | 49.4 | 71.8 | 44.8 |
 
-CLIP-RD consistently outperforms CLIP-KD on ImageNet variants and CC3M retrieval. In particular, it improves ImageNet-R by 2.0%p and CC3M retrieval by 0.4%p / 0.6%p on I2T / T2I.
+CLIP-RD consistently outperforms CLIP-KD on ImageNet variants. CLIP-RD consistently outperforms CLIP-KD across all datasets, yielding improvements ranging from 1.1%p to 2.0%p.
 
 ### Zero-Shot Classification on Various Datasets
 
-| Method | IN | CIFAR-10 | CIFAR-100 | EuroSAT | Food101 | RESISC45 | Sun397 | Caltech101 |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| T: ViT-B/16 | 67.1 | 91.1 | 71.3 | 33.8 | 80.2 | 57.8 | 69.0 | 87.0 |
-| S: ViT-T/16 | 29.3 | 66.9 | 27.5 | 11.6 | 27.8 | 24.4 | 38.1 | 66.2 |
-| CLIP-KD | 41.3 | 74.2 | 39.9 | 18.0 | 41.6 | 32.6 | 51.6 | 75.9 |
-| CLIP-RD (Ours) | 42.1 | 75.5 | 42.3 | 25.5 | 43.2 | 32.6 | 52.0 | 78.0 |
+| Method | CIFAR-10 | CIFAR-100 | Caltech101 | EuroSAT | Food101 | RESISC45 | Sun397 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| T: ViT-L/14 | 94.7 | 77.7 | 88.4 | 41.3 | 84.9 | 63.2 | 71.5 |
+| S: ViT-B/16 | 79.5 | 39.4 | 75.8 | 19.1 | 36.2 | 33.0 | 45.6 |
+| CLIP-KD | 87.5 | 61.7 | 84.7 | 28.1 | 58.1 | 46.9 | 61.1 |
+| CLIP-RD (Ours) | 87.9 | 62.7 | 85.3 | 34.8 | 60.0 | 48.7 | 62.7 |
 
-Across diverse zero-shot classification benchmarks, CLIP-RD improves over CLIP-KD by up to 7.5%p, with strong gains on EuroSAT, CIFAR-100, Food101, Sun397, and Caltech101.
+CLIP-RD outperforms CLIP-KD across all datasets. On object classification benchmarks such as CIFAR-10/100 and Caltech101, it surpasses CLIP-KD by 0.4%p to 1.0%p. Notably, on EuroSAT, a challenging satellite image dataset, CLIP-RD demonstrates a substantial improvement of 6.7%p. We observe similar robust improvements on Food101 (+1.9%p), Sun397 (+1.6%p), and RESISC45 (+1.8%p), confirming the strong zero-shot capability of our model.
