@@ -18,13 +18,11 @@ torchrun --nproc_per_node 2 -m \
     --wd=0.1 \
     --epochs 32 \
     --workers=8 \
-    --model ViT-T-16 \
-    --t-model ViT-B-16 \
+    --model student model(e.g. ViT-B-16) \
+    --t-model teacher model(e.g. ViT-L-14) \
     --t-model-checkpoint path/to/tmodel \
     --logs path/to/logs/ \
     --alpha_icl_loss 1. \
     --alpha_fd_loss 2000. \
     --alpha_hrd_loss 1. \
-    --alpha_VRD_loss 1. \
-    --alpha_XRD_loss 1. \
     --tag distill-new 
