@@ -17,7 +17,7 @@ torchrun --nproc_per_node 1 -m \
     --wd=0.1 \
     --epochs 32 \
     --workers=16 \
-    --model ViT-T-16 \
+    --model model(e.g. ViT-B-16) \
     --resume path/to/model.pt \
     --logs path/to/logs/  \
     --tag eval_cc3m_val
